@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Sidebar Ultimate</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial;
+        }
+
+        html {
+            font-size: 14px;
+        }
+
+        body {
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* SIDEBAR */
+        .pra-sidebar {
+            width: 280px;
+            height: 100vh;
+            background: #fff;
+            position: fixed;
+            transition: .3s;
+            overflow-x: visible;
+            border-right: 1px solid #0d0d0d38;
+        }
+
+        .pra-sidebar.pra-collapsed {
+            width: 90px;
+        }
+
+        /* LOGO */
+        .pra-sidebar-top {
+            height: 48px;
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            align-items: center;
+            border-bottom: 1px solid #0d0d0d38
+        }
+
+        .pra-logo {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .pra-logo img {
+            max-height: 30px;
+        }
+
+        .pra-sidebar.pra-collapsed .pra-logo span {
+            display: none;
+        }
+
+        /* MENU */
+        .pra-menu-item {
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            position: relative;
+            width: 100%;
+        }
+
+        .pra-menu-item:hover {
+            background: #0000000a;
+        }
+
+        .pra-sidebar.pra-collapsed .pra-menu-item {
+            justify-content: left;
+        }
+
+        .pra-menu-text {
+            flex: 1;
+        }
+
+        .pra-sidebar.pra-collapsed .pra-menu-text {
+            display: none;
+        }
+
+        /* SUBMENU */
+        .pra-submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .3s ease;
+        }
+
+        .pra-submenu.pra-open {
+            max-height: 600px;
+        }
+
+        /* INDENT */
+        .pra-submenu .pra-menu-item {
+            padding-left: 35px;
+        }
+
+        .pra-submenu .pra-submenu .pra-menu-item {
+            padding-left: 55px;
+        }
+
+        .pra-submenu .pra-submenu .pra-submenu .pra-menu-item {
+            padding-left: 75px;
+        }
+
+        /* ARROW */
+        .pra-arrow {
+            transition: .3s;
+            font-size: 12px;
+        }
+
+        .pra-menu-item.pra-active>.pra-arrow {
+            transform: rotate(90deg);
+        }
+
+        /* FLOAT TOOLTIP */
+        .pra-tooltip {
+            position: fixed;
+            background: #111827;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999999;
+            transition: 0.15s;
+        }
+
+        /* MAIN */
+        .pra-main {
+            margin-left: 280px;
+            width: 100%;
+            transition: .3s;
+        }
+
+        .pra-sidebar.pra-collapsed~.pra-main {
+            margin-left: 90px;
+        }
+
+        .pra-header {
+            height: 48px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid #0d0d0d38;
+        }
+
+        .pra-content {
+            padding: 0px;
+        }
+
+        .fa-folder {
+            color: #ff9800;
+            font-size: 18px;
+        }
+
+        .fa-file-pdf {
+            color: red;
+        }
+
+        .aside-toogle {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-left: 4px;
+        }
+
+        .aside-toogle:hover {
+            background: #c5bfbf9c;
+            cursor: pointer;
+        }
+    </style>
+    <!-- ================================ Main Conatiner ====================== -->
+    <style>
+        /* FOLDER LIST → HORIZONTAL SCROLL */
+        .pra-folder-list {
+            height: 120px;
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 4px;
+        }
+
+        .pra-preview {
+            padding: 8px 16px;
+        }
+
+        /* FOLDER ITEM */
+        .pra-folder-item {
+            min-width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* ICON BIG */
+        .pra-folder-item i {
+            font-size: 70px;
+        }
+
+        .pra-path {
+            border-bottom: 1px solid #ddd;
+            background: #f1f5f9;
+            border-top: 1px solid #ddd;
+            padding: 6px 16px;
+        }
+
+        /* TEXT */
+        .pra-folder-item span {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* HOVER */
+        .pra-folder-item:hover {
+            opacity: 0.9;
+        }
+
+        /* Smooth scroll */
+        .pra-folder-list {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        .pra-folder-list::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .pra-folder-list::-webkit-scrollbar-thumb {
+            background: #bbb;
+            border-radius: 10px;
+        }
+
+        /* PREVIEW GRID */
+        .pra-preview {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        /* ITEM BOX */
+        .pra-preview-item {
+            text-align: center;
+            cursor: pointer;
+        }
+
+        /* ICON SIZE */
+        .pra-preview-item i {
+            font-size: 40px;
+            margin-bottom: 5px;
+        }
+
+        /* TEXT */
+        .pra-preview-item span {
+            display: block;
+            font-size: 12px;
+            word-break: break-word;
+        }
+
+
+
+        /* WRAPPER */
+        .pra-preview-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        /* DEFAULT = THUMB VIEW (GRID) */
+        .pra-preview {
+            height: 100%;
+            overflow-y: auto;
+            padding: 10px;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        /* ITEM */
+        .pra-preview-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .pra-preview-item i {
+            font-size: 40px;
+        }
+
+        .pra-preview-item span {
+            display: block;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* LIST VIEW */
+        .pra-preview.list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .pra-preview.list-view .pra-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .pra-preview.list-view .pra-preview-item i {
+            font-size: 20px;
+        }
+
+        .pra-preview.list-view .pra-preview-item span {
+            margin-top: 0;
+        }
+
+        /* TOGGLE BUTTON */
+        .pra-view-toggle {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            display: flex;
+            gap: 10px;
+            padding: 6px 10px;
+        }
+
+        .pra-view-toggle i {
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .pra-view-toggle i.active {
+            color: #000;
+            font-weight: bold;
+        }
+
+        .path-item {
+            cursor: pointer;
+        }
+
+        .path-item:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="pra-sidebar" id="praSidebar">
+
+        <div class="pra-sidebar-top">
+            <div class="pra-logo">
+                <img
+                    src="https://media.licdn.com/dms/image/v2/D560BAQEJizgp-XVuMg/company-logo_100_100/company-logo_100_100/0/1719419346821/linkedin_ads_logo?e=1776297600&v=beta&t=oajqB5O5FA45qVqnuDvnhQrxsLmSpU7Z8LL_XKTMw6k">
+                <span>eAsset</span>
+            </div>
+            <i class="fas fa-angle-left aside-toogle" onclick="praToggleSidebar()"></i>
+        </div>
+
+        <div>
+
+            <!-- ROOT -->
+            <div class="pra-menu-item pra-has-submenu">
+                <i class="fas fa-desktop"></i>
+                <span class="pra-menu-text">This PC</span>
+                <i class="fas fa-chevron-right pra-arrow"></i>
+            </div>
+
+
+            <!-- DRIVE C -->
+            <div class="pra-submenu" id="pra-tree-root">
+
+                <!-- 
+                <div class="pra-menu-item pra-has-submenu">
+                    <i class="fas fa-folder"></i>
+                    <span class="pra-menu-text">Drive C</span>
+                    <i class="fas fa-chevron-right pra-arrow"></i>
+                </div>
+
+                <div class="pra-submenu">
+
+                    <div class="pra-menu-item pra-has-submenu">
+                        <i class="fas fa-folder"></i>
+                        <span class="pra-menu-text">Users</span>
+                        <i class="fas fa-chevron-right pra-arrow"></i>
+                    </div>
+
+
+                    <div class="pra-submenu">
+
+                        <div class="pra-menu-item pra-has-submenu">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">Pravendra</span>
+                            <i class="fas fa-chevron-right pra-arrow"></i>
+                        </div>
+
+                        <div class="pra-submenu">
+
+                            <div class="pra-menu-item pra-has-submenu">
+                                <i class="fas fa-folder"></i>
+                                <span class="pra-menu-text">Documents</span>
+                                <i class="fas fa-chevron-right pra-arrow"></i>
+                            </div>
+
+                            <div class="pra-submenu">
+
+                                <div class="pra-menu-item">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span class="pra-menu-text">Notes (PDF)</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="pra-menu-item pra-has-submenu">
+                        <i class="fas fa-folder"></i>
+                        <span class="pra-menu-text">Program</span>
+                        <i class="fas fa-chevron-right pra-arrow"></i>
+                    </div>
+
+
+                    <div class="pra-submenu">
+
+                        <div class="pra-menu-item pra-has-submenu">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">NET</span>
+                            <i class="fas fa-chevron-right pra-arrow"></i>
+                        </div>
+
+                        <div class="pra-submenu">
+
+                            <div class="pra-menu-item pra-has-submenu">
+                                <i class="fas fa-folder"></i>
+                                <span class="pra-menu-text">VERSION</span>
+                                <i class="fas fa-chevron-right pra-arrow"></i>
+                            </div>
+
+                            <div class="pra-submenu">
+
+                                <div class="pra-menu-item">
+                                    <i class="fas fa-file-pdf"></i>
+                                    <span class="pra-menu-text">.EXE</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="pra-menu-item pra-has-submenu">
+                    <i class="fas fa-folder"></i>
+                    <span class="pra-menu-text">Drive D</span>
+                    <i class="fas fa-chevron-right pra-arrow"></i>
+                </div>
+
+                <div class="pra-submenu">
+
+                    <div class="pra-menu-item pra-has-submenu">
+                        <i class="fas fa-folder"></i>
+                        <span class="pra-menu-text">Dev</span>
+                        <i class="fas fa-chevron-right pra-arrow"></i>
+                    </div>
+
+                    <div class="pra-submenu">
+                        <div class="pra-menu-item">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">Projects</span>
+                        </div>
+                        <div class="pra-menu-item">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">Source Code</span>
+                        </div>
+                    </div>
+
+                    <div class="pra-menu-item pra-has-submenu">
+                        <i class="fas fa-folder"></i>
+                        <span class="pra-menu-text">GATE</span>
+                        <i class="fas fa-chevron-right pra-arrow"></i>
+                    </div>
+
+                    <div class="pra-submenu">
+                        <div class="pra-menu-item">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">DSA</span>
+                        </div>
+                        <div class="pra-menu-item">
+                            <i class="fas fa-folder"></i>
+                            <span class="pra-menu-text">ALGO</span>
+                        </div>
+                    </div>
+
+                </div> -->
+
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="pra-main">
+        <div class="pra-header">
+            <h3>Header</h3>
+        </div>
+
+        <div class="pra-content">
+
+
+
+            <!-- FOLDER LIST (SCROLLABLE) -->
+            <div class="pra-folder-list">
+
+                <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Documents</span>
+                </div>
+
+                <!-- <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Downloads</span>
+                </div>
+
+                <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Pictures</span>
+                </div>
+
+                <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Videos</span>
+                </div>
+
+                <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Music</span>
+                </div>
+
+                <div class="pra-folder-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Projects</span>
+                </div> -->
+
+            </div>
+
+            <!-- DIRECTORY BAR (TOP - 40px) -->
+            <div class="pra-path">
+                This PC
+                <!-- > Drive C > Users > Pravendra > Documents -->
+            </div>
+
+
+
+            <!-- PREVIEW AREA -->
+            <div class="pra-preview" id="pra-preview">
+
+                <!-- FOLDER ITEMS -->
+                <!-- <div class="pra-preview-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Projects</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Images</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-folder"></i>
+                    <span>Backup</span>
+                </div>
+
+                
+                <div class="pra-preview-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Notes.pdf</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-file-word"></i>
+                    <span>Report.docx</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-file-excel"></i>
+                    <span>Data.xlsx</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-file-image"></i>
+                    <span>Photo.png</span>
+                </div>
+
+                <div class="pra-preview-item">
+                    <i class="fas fa-file-video"></i>
+                    <span>Video.mp4</span>
+                </div> -->
+
+            </div>
+            <!-- VIEW TOGGLE (BOTTOM RIGHT) -->
+            <div class="pra-view-toggle">
+                <i class="fas fa-th active" onclick="setThumbView()"></i>
+                <i class="fas fa-list" onclick="setListView()"></i>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FLOAT TOOLTIP -->
+    <div class="pra-tooltip" id="praTooltip"></div>
+
+    <script>
+
+        // ACCORDION (UNCHANGED)
+        document.querySelectorAll(".pra-has-submenu").forEach(item => {
+            item.addEventListener("click", function (e) {
+                e.stopPropagation();
+
+                const submenu = this.nextElementSibling;
+                if (!submenu) return;
+
+                const parent = this.parentElement;
+
+                Array.from(parent.children).forEach(el => {
+                    if (el !== this && el.classList.contains("pra-menu-item")) {
+                        el.classList.remove("pra-active");
+
+                        let next = el.nextElementSibling;
+                        if (next && next.classList.contains("pra-submenu")) {
+                            next.classList.remove("pra-open");
+                            closeAll(next);
+                        }
+                    }
+                });
+
+                this.classList.toggle("pra-active");
+                submenu.classList.toggle("pra-open");
+            });
+        });
+
+        function closeAll(menu) {
+            menu.querySelectorAll(".pra-submenu").forEach(s => s.classList.remove("pra-open"));
+            menu.querySelectorAll(".pra-menu-item").forEach(i => i.classList.remove("pra-active"));
+        }
+
+        // SIDEBAR TOGGLE
+        function praToggleSidebar() {
+            document.getElementById("praSidebar").classList.toggle("pra-collapsed");
+        }
+
+        // TOOLTIP
+        const tooltip = document.getElementById("praTooltip");
+
+        document.querySelectorAll(".pra-menu-item").forEach(item => {
+
+            item.addEventListener("mouseenter", function () {
+
+                const sidebar = document.getElementById("praSidebar");
+                if (!sidebar.classList.contains("pra-collapsed")) return;
+
+                const text = this.querySelector(".pra-menu-text");
+                if (!text) return;
+
+                tooltip.innerText = text.innerText;
+
+                const rect = this.getBoundingClientRect();
+
+                tooltip.style.left = (rect.right + 4) + "px";
+                tooltip.style.top = (rect.top + rect.height / 2) + "px";
+
+                tooltip.style.opacity = "1";
+            });
+
+            item.addEventListener("mouseleave", function () {
+                tooltip.style.opacity = "0";
+            });
+        });
+
+
+        function setListView() {
+            const preview = document.getElementById("pra-preview");
+            preview.classList.add("list-view");
+
+            document.querySelector(".fa-list").classList.add("active");
+            document.querySelector(".fa-th").classList.remove("active");
+        }
+
+        function setThumbView() {
+            const preview = document.getElementById("pra-preview");
+            preview.classList.remove("list-view");
+
+            document.querySelector(".fa-th").classList.add("active");
+            document.querySelector(".fa-list").classList.remove("active");
+        }
+    </script>
+
+
+
+
+    <!-- ====================================== Bind Menu (AJAX) ========================= -->
+    <!-- <script>
+        const API_URL = "https://localhost:44313/api/folder/";
+
+        // Load root
+        $(document).ready(function () {
+            $("#pra-tree-root").html("");
+            loadTree(0, $("#pra-tree-root"));
+        });
+
+        function loadTree(parentId, container) {
+
+            $.ajax({
+                url: API_URL + parentId,
+                type: "GET",
+                success: function (data) {
+
+                    $.each(data.folders, function (i, folder) {
+
+                        const item = $(`
+                    <div class="pra-menu-item pra-has-submenu">
+                        <i class="fas fa-folder"></i>
+                        <span class="pra-menu-text">${folder.name}</span>
+                        <i class="fas fa-chevron-right pra-arrow"></i>
+                    </div>
+                `);
+
+                        const submenu = $('<div class="pra-submenu"></div>');
+
+                        item.on("click", function (e) {
+                            e.stopPropagation();
+
+                            item.toggleClass("pra-active");
+                            submenu.toggleClass("pra-open");
+
+                            // Load children once
+                            if (submenu.children().length === 0) {
+                                loadTree(folder.folderId, submenu);
+                            }
+
+                            // Load right panel
+                            loadFolderContent(folder.folderId);
+                        });
+
+                        container.append(item);
+                        container.append(submenu);
+                    });
+                },
+                error: function (err) {
+                    console.error("Error loading tree:", err);
+                }
+            });
+        }
+
+
+        function loadTopFolders(folders) {
+
+            const container = $(".pra-folder-list");
+            container.empty();
+
+            $.each(folders, function (i, f) {
+                container.append(`
+            <div class="pra-folder-item" data-id="${f.folderId}">
+                <i class="fas fa-folder"></i>
+                <span>${f.name}</span>
+            </div>
+        `);
+            });
+
+            // CLICK → open folder
+            $(".pra-folder-item").on("click", function () {
+                const id = $(this).data("id");
+                loadFolderContent(id);
+            });
+        }
+
+
+        function loadFolderContent(folderId) {
+
+            $.ajax({
+                url: API_URL + folderId,
+                type: "GET",
+                success: function (data) {
+
+                    const preview = $("#pra-preview");
+                    preview.empty();
+
+                    // 🔥 TOP = ONLY FOLDERS
+                    loadTopFolders(data.folders);
+
+                    // 🔥 BOTTOM = FILES ONLY
+                    $.each(data.files, function (i, f) {
+                        preview.append(`
+                    <div class="pra-preview-item">
+                        <i class="fas fa-file"></i>
+                        <span>${f.fileName}</span>
+                    </div>
+                `);
+                    });
+
+                    // PATH
+                    buildPath(data.path, folderId);
+                }
+            });
+        }
+
+
+
+
+        function buildPath(path, currentFolderId) {
+
+            const container = $(".pra-path");
+            container.empty();
+
+            // Root
+            container.append(`<span class="path-item" data-id="0">This PC</span>`);
+
+            if (!path) return;
+
+            const parts = path.split("/");
+
+            let tempPath = "";
+            let parentId = 0;
+
+            parts.forEach((part, index) => {
+
+                container.append(` <span> > </span> `);
+
+                container.append(`
+            <span class="path-item" data-name="${part}">
+                ${part}
+            </span>
+        `);
+            });
+
+            // CLICK EVENT
+            $(".path-item").on("click", function () {
+
+                const name = $(this).data("name");
+
+                if (!name) {
+                    loadFolderContent(0);
+                    return;
+                }
+
+                // 🔥 IMPORTANT:
+                // We don't have folderId here → so we reload from root step by step
+                navigateByPath(path, name);
+            });
+        }
+
+
+        function navigateByPath(fullPath, targetName) {
+
+            const parts = fullPath.split("/");
+            let currentId = 0;
+
+            function next(index) {
+
+                if (index >= parts.length) return;
+
+                $.ajax({
+                    url: API_URL + currentId,
+                    type: "GET",
+                    success: function (data) {
+
+                        const folder = data.folders.find(f => f.name === parts[index]);
+
+                        if (!folder) return;
+
+                        currentId = folder.folderId;
+
+                        if (parts[index] === targetName) {
+                            loadFolderContent(currentId);
+                        } else {
+                            next(index + 1);
+                        }
+                    }
+                });
+            }
+
+            next(0);
+        }
+
+    </script> -->
+
+
+
+    <script>
+        const API_URL = "https://localhost:44313/api/";
+
+// ================= STATE =================
+const folderCache = {};
+let currentFolderId = null;
+let loadingRequests = {}; // prevent duplicate same request
+
+// ================= INIT =================
+$(document).ready(function () {
+
+    // Clear root
+    $("#pra-tree-root").empty();
+
+    // Load sidebar
+    loadTree(0, $("#pra-tree-root"));
+
+    // Load default root content
+    loadFolderContent(0);
+});
+
+
+// ================= API (SMART) =================
+function getFolderData(folderId) {
+
+    // ✅ CACHE
+    if (folderCache[folderId]) {
+        return Promise.resolve(folderCache[folderId]);
+    }
+
+    // ✅ PREVENT SAME REQUEST MULTIPLE TIMES
+    if (loadingRequests[folderId]) {
+        return loadingRequests[folderId];
+    }
+
+    loadingRequests[folderId] = $.ajax({
+        url: API_URL +"folder/"+ folderId,
+        type: "GET"
+    })
+    .then(data => {
+        folderCache[folderId] = data;
+        delete loadingRequests[folderId];
+        return data;
+    })
+    .catch(err => {
+        delete loadingRequests[folderId];
+        console.error("API Error:", err);
+        showError("Failed to load data");
+    });
+
+    return loadingRequests[folderId];
+}
+
+
+// ================= SIDEBAR TREE =================
+function loadTree(parentId, container) {
+
+    getFolderData(parentId).then(data => {
+
+        if (!data || !data.folders) return;
+
+        data.folders.forEach(folder => {
+
+            const item = $(`
+                <div class="pra-menu-item pra-has-submenu" data-id="${folder.folderId}">
+                    <i class="fas fa-folder"></i>
+                    <span class="pra-menu-text">${folder.name}</span>
+                    <i class="fas fa-chevron-right pra-arrow"></i>
+                </div>
+            `);
+
+            const submenu = $('<div class="pra-submenu"></div>');
+
+            container.append(item);
+            container.append(submenu);
+        });
+    });
+}
+
+
+// ================= CLICK HANDLING (GLOBAL - BEST PRACTICE) =================
+$(document).on("click", ".pra-menu-item", function (e) {
+
+    e.stopPropagation();
+
+    const item = $(this);
+    const folderId = item.data("id");
+
+    // If no id → skip (like "This PC")
+    if (folderId === undefined) return;
+
+    const submenu = item.next(".pra-submenu");
+
+    // Toggle UI
+    item.toggleClass("pra-active");
+    submenu.toggleClass("pra-open");
+
+    // Load children once
+    if (!submenu.data("loaded")) {
+        submenu.data("loaded", true);
+        loadTree(folderId, submenu);
+    }
+
+    // ✅ LOAD CONTENT (ONLY ONCE)
+    loadFolderContent(folderId);
+});
+
+
+// ================= MAIN CONTENT =================
+function loadFolderContent(folderId) {
+
+    // ✅ Prevent same reload
+    if (currentFolderId === folderId) return;
+
+    currentFolderId = folderId;
+
+    getFolderData(folderId).then(data => {
+
+        if (!data) return;
+
+        renderTopFolders(data.folders);
+
+        const preview = $("#pra-preview");
+        preview.empty();
+
+        if (!data.files.length && !data.folders.length) {
+            preview.html("<p style='padding:10px'>No data found</p>");
+        }
+
+        data.files.forEach(f => {
+            preview.append(`
+                <div class="pra-preview-item">
+                    <i class="fas ${getFileIcon(f.fileName)}"></i>
+                    <span>${f.fileName}</span>
+                </div>
+            `);
+        });
+
+        renderBreadcrumb(data.path);
+    });
+}
+
+
+// ================= TOP FOLDER =================
+function renderTopFolders(folders) {
+
+    const container = $(".pra-folder-list");
+    container.empty();
+
+    folders.forEach(f => {
+        container.append(`
+            <div class="pra-folder-item" data-id="${f.folderId}">
+                <i class="fas fa-folder"></i>
+                <span>${f.name}</span>
+            </div>
+        `);
+    });
+}
+
+
+// ✅ Delegation (NO MULTIPLE BINDING)
+$(document).on("click", ".pra-folder-item", function () {
+
+    const id = $(this).data("id");
+    loadFolderContent(id);
+});
+
+
+// ================= BREADCRUMB =================
+function renderBreadcrumb(path) {
+
+    const container = $(".pra-path");
+    container.empty();
+
+    container.append(`<span class="path-item" data-id="0">This PC</span>`);
+
+    if (!path) return;
+
+    const parts = path.split("/");
+
+    parts.forEach((part, index) => {
+
+        container.append(`<span> > </span>`);
+
+        container.append(`
+            <span class="path-item" data-index="${index}">
+                ${part}
+            </span>
+        `);
+    });
+
+    container.data("fullPath", path);
+}
+
+
+// ================= BREADCRUMB CLICK =================
+$(document).on("click", ".path-item", function () {
+
+    const index = $(this).data("index");
+    const path = $(".pra-path").data("fullPath");
+
+    if (index === undefined) {
+        loadFolderContent(0);
+        return;
+    }
+
+    navigateToIndex(index, path);
+});
+
+
+// ================= SMART NAVIGATION =================
+function navigateToIndex(targetIndex, fullPath) {
+
+    const parts = fullPath.split("/");
+    let currentId = 0;
+
+    function next(i) {
+
+        if (i > targetIndex) return;
+
+        getFolderData(currentId).then(data => {
+
+            if (!data) return;
+
+            const folder = data.folders.find(f => f.name === parts[i]);
+            if (!folder) return;
+
+            currentId = folder.folderId;
+
+            if (i === targetIndex) {
+                loadFolderContent(currentId);
+            } else {
+                next(i + 1);
+            }
+        });
+    }
+
+    next(0);
+}
+
+
+// ================= ICON =================
+function getFileIcon(name) {
+
+    const ext = name.split('.').pop().toLowerCase();
+
+    if (ext === "pdf") return "fa-file-pdf";
+    if (ext === "docx") return "fa-file-word";
+    if (ext === "xlsx") return "fa-file-excel";
+    if (["png","jpg","jpeg"].includes(ext)) return "fa-file-image";
+    if (["mp4","avi"].includes(ext)) return "fa-file-video";
+
+    return "fa-file";
+}
+
+
+// ================= ERROR =================
+function showError(msg) {
+    $("#pra-preview").html(`<p style="color:red;padding:10px">${msg}</p>`);
+}
+    </script>
+</body>
+
+</html>
